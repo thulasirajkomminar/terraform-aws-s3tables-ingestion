@@ -6,11 +6,11 @@ Streaming ingestion of sensor readings into an Apache Iceberg table on Amazon S3
 
 The design and every decision in it is explained in a five-part blog series. Read it before you edit anything:
 
-1. [When 90 Buckets Become a Bottleneck in an IIoT Data Platform](https://www.thulasirajkomminar.com/posts/when-90-buckets-become-a-bottleneck/): why one table per region
+1. [When 90 Buckets Become a Bottleneck in an IIoT Data Platform](https://www.thulasirajkomminar.com/posts/when-90-buckets-become-a-bottleneck-in-an-iiot-data-platform/): why one table per region
 2. [Consolidating Streaming Ingestion with Kinesis Firehose and Apache Iceberg](https://www.thulasirajkomminar.com/posts/consolidating-streaming-ingestion-with-kinesis-firehose-and-apache-iceberg/): the pipeline in this repo
-3. [Designing One Iceberg Table for Ninety Sites](https://www.thulasirajkomminar.com/posts/one-table-not-ninety-schema-design-for-multi-tenant-iceberg-tables/): the schema, partitioning, and why the table is an `awscc` resource
-4. [Sharing S3 Tables Across Accounts with Lake Formation](https://www.thulasirajkomminar.com/posts/s3-tables-cross-account-sharing-with-lake-formation-and-terraform/): `data_sharing.tf`, `modules/consumer-share`, and every gotcha
-5. [Debugging a Federated AccessDenied, Layer by Layer](https://www.thulasirajkomminar.com/posts/anatomy-of-an-accessdenied-debugging-aws-federation-layer-by-layer/): how to debug it when it breaks
+3. [Designing One Iceberg Table for Ninety Sites](https://www.thulasirajkomminar.com/posts/designing-one-iceberg-table-for-ninety-sites/): the schema, partitioning, and why the table is an `awscc` resource
+4. [Sharing S3 Tables Across Accounts with Lake Formation](https://www.thulasirajkomminar.com/posts/sharing-s3-tables-across-accounts-with-lake-formation/): `data_sharing.tf`, `modules/consumer-share`, and every gotcha
+5. [Debugging a Federated AccessDenied, Layer by Layer](https://www.thulasirajkomminar.com/posts/debugging-a-federated-accessdenied-layer-by-layer/): how to debug it when it breaks
 
 ## Using this repo
 
