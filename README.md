@@ -31,6 +31,17 @@ The design and every decision in it is explained in a five-part blog series. Rea
 
 The transform Lambda is built during `terraform apply`, which needs `go` 1.24+, `make`, and `zip` on the machine running Terraform. To skip that, run `make -C functions/transform package` once and set `transform_package_path` to the resulting zip.
 
+## Cross-account sharing
+
+`data_sharing.tf` implements the consumer-managed pattern from post 4: the producer grants Lake Formation `DESCRIBE` and `SELECT` with grant option to each account in `consumer_account_ids`, and the consumer's own Lake Formation administrators fan out to their roles with `modules/consumer-share`.
+
+An S3 Tables catalog is a Glue federation over the S3 Tables service, and every federated call is re-authorised at the `s3tables` layer as the consumer's own principal. The RAM share created by the grant covers only Glue ARNs, so the producer also attaches a table bucket policy for the consumer accounts:
+
+- Six metadata actions (`GetNamespace`, `GetTable`, `GetTableBucket`, `GetTableMetadataLocation`, `ListNamespaces`, `ListTables`) at account scope. These are what consumer-side grant validation needs.
+- `s3tables:GetTableData` for the federated read path, conditioned on `aws:CalledVia` being `glue.amazonaws.com` or `lakeformation.amazonaws.com`. Glue carries metadata resolution; Lake Formation carries the credential-vending call behind a consumer query. The condition means the permission cannot be used for a direct `s3tables` read, so every read stays under Lake Formation grants, filters, and audit. `consumer_principal_arns` narrows the same statement to named roles and is kept as a second control.
+
+The two-service list is verified for Athena through a resource link. Whether it is complete for Redshift Spectrum, EMR/Spark via the Glue Iceberg REST endpoint, or Glue ETL is still being confirmed with AWS; test against the engines you run before relying on it. None of this is in AWS's public documentation as of September 2026.
+
 ## Producer record contract
 
 Producers write one JSON object per Kinesis record:

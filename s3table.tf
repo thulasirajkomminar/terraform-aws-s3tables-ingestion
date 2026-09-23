@@ -31,29 +31,95 @@ resource "awscc_s3tables_table" "default" {
     iceberg_schema = {
       # Field IDs are referenced by source_id in the partition spec and sort order.
       schema_field_list = [
-        { id = 1, name = "ingest_ts", type = "timestamptz", required = true },  # when the pipeline received the reading
-        { id = 2, name = "name", type = "string", required = true },            # human-readable sensor name or path
-        { id = 3, name = "site_id", type = "string", required = true },         # tenant key, partition column
-        { id = 4, name = "source_ts", type = "timestamptz", required = true },  # when the sensor observed the value
-        { id = 5, name = "sensor_id", type = "string", required = true },       # sensor identity, sort column
-        { id = 6, name = "value_boolean", type = "boolean", required = false }, # exactly one value_* column is set per row
-        { id = 7, name = "value_double", type = "double", required = false },
-        { id = 8, name = "value_string", type = "string", required = false },
+        # When the pipeline received the reading.
+        {
+          id       = 1
+          name     = "ingest_ts"
+          type     = "timestamptz"
+          required = true
+        },
+        # Human-readable sensor name or path.
+        {
+          id       = 2
+          name     = "name"
+          type     = "string"
+          required = true
+        },
+        # Tenant key, partition column.
+        {
+          id       = 3
+          name     = "site_id"
+          type     = "string"
+          required = true
+        },
+        # When the sensor observed the value.
+        {
+          id       = 4
+          name     = "source_ts"
+          type     = "timestamptz"
+          required = true
+        },
+        # Sensor identity, sort column.
+        {
+          id       = 5
+          name     = "sensor_id"
+          type     = "string"
+          required = true
+        },
+        # Exactly one value_* column is set per row.
+        {
+          id       = 6
+          name     = "value_boolean"
+          type     = "boolean"
+          required = false
+        },
+        {
+          id       = 7
+          name     = "value_double"
+          type     = "double"
+          required = false
+        },
+        {
+          id       = 8
+          name     = "value_string"
+          type     = "string"
+          required = false
+        },
       ]
     }
 
     # Dominant query: one site, a bounded time range, a few sensors.
     iceberg_partition_spec = {
       fields = [
-        { field_id = 1000, name = "site_id", source_id = 3, transform = "identity" },
-        { field_id = 1001, name = "source_ts_day", source_id = 4, transform = "day" },
+        {
+          field_id  = 1000
+          name      = "site_id"
+          source_id = 3
+          transform = "identity"
+        },
+        {
+          field_id  = 1001
+          name      = "source_ts_day"
+          source_id = 4
+          transform = "day"
+        },
       ]
     }
 
     iceberg_sort_order = {
       fields = [
-        { source_id = 5, transform = "identity", direction = "asc", null_order = "nulls-last" },
-        { source_id = 4, transform = "identity", direction = "asc", null_order = "nulls-last" },
+        {
+          source_id  = 5
+          transform  = "identity"
+          direction  = "asc"
+          null_order = "nulls-last"
+        },
+        {
+          source_id  = 4
+          transform  = "identity"
+          direction  = "asc"
+          null_order = "nulls-last"
+        },
       ]
     }
 

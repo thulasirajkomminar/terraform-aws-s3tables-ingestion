@@ -28,8 +28,18 @@ provider "awscc" {
 module "ingestion" {
   source = "../.."
 
-  name                 = "sensor-readings-eu-central-1"
-  consumer_account_ids = ["333333333333"] # pair with examples/consumer
+  name = "sensor-readings-eu-central-1"
+
+  # Each consumer account gets an account-level Lake Formation share and a
+  # table bucket policy (six metadata actions plus a CalledVia-conditioned
+  # s3tables:GetTableData). Pair with examples/consumer.
+  consumer_account_ids = ["333333333333"]
+
+  # Optional second control: narrow the GetTableData statement to the roles
+  # the consumer actually grants to, instead of the account root.
+  # consumer_principal_arns = [
+  #   "arn:aws:iam::333333333333:role/aws-reserved/sso.amazonaws.com/eu-central-1/AWSReservedSSO_Analyst_fedcba9876543210",
+  # ]
 
   producer_account_ids = [
     "111111111111",

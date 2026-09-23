@@ -20,8 +20,13 @@ variable "producer_account_id" {
 
 variable "resource_link_name" {
   type        = string
-  description = "Name of the local Glue database that links to the producer's namespace. Defaults to namespace."
+  description = "Name of the local Glue database that links to the producer's namespace. Defaults to namespace. Lowercase letters, digits and underscores only: Athena cannot query through a resource link whose name contains a hyphen."
   default     = null
+
+  validation {
+    condition     = var.resource_link_name == null || can(regex("^[a-z0-9_]+$", var.resource_link_name))
+    error_message = "resource_link_name must contain only lowercase letters, digits and underscores; Athena rejects hyphenated resource links."
+  }
 }
 
 variable "table_bucket_name" {

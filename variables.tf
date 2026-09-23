@@ -3,7 +3,7 @@
 
 variable "consumer_account_ids" {
   type        = list(string)
-  description = "AWS account IDs that receive an account-level Lake Formation share with grant option, plus the table bucket policy their Lake Formation administrators need to grant onward. Pair with modules/consumer-share on the consumer side."
+  description = "AWS account IDs that receive an account-level Lake Formation share with grant option, plus the table bucket policy their Lake Formation administrators need to grant onward: six s3tables metadata actions at account scope, and s3tables:GetTableData for the federated read path conditioned on aws:CalledVia. Pair with modules/consumer-share on the consumer side."
   default     = []
 
   validation {
@@ -14,7 +14,7 @@ variable "consumer_account_ids" {
 
 variable "consumer_principal_arns" {
   type        = list(string)
-  description = "Optional. When set, the s3tables:GetTableData statement of the table bucket policy is granted to these principals instead of the consumer_account_ids account roots. The metadata actions stay at account scope."
+  description = "Optional. When set, the s3tables:GetTableData statement of the table bucket policy is granted to these principals instead of the consumer_account_ids account roots. The metadata actions stay at account scope. The statement also carries an aws:CalledVia condition for glue.amazonaws.com and lakeformation.amazonaws.com; this variable is a second, interim control until AWS confirms the complete service-principal set."
   default     = []
 }
 

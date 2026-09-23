@@ -10,7 +10,8 @@ terraform {
       source  = "hashicorp/aws"
       version = ">= 6.25"
     }
-    # aws_s3tables_table cannot express a partition spec or sort order.
+    # aws_s3tables_table cannot express a partition spec or sort order. Move the
+    # table back to the aws provider the day it can.
     awscc = {
       source  = "hashicorp/awscc"
       version = ">= 1.90"

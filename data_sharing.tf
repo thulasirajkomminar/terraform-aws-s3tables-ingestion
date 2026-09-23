@@ -6,6 +6,12 @@
 # as the calling principal. The RAM share only carries glue:* ARNs, so without
 # this bucket policy every consumer-side grant fails with
 # "Insufficient Glue permissions to access table".
+#
+# Two federated hops reach S3 Tables with the consumer's own credentials, and
+# both must pass this policy: metadata resolution arrives via Glue
+# (glue.amazonaws.com), and the credential-vending call behind a consumer
+# query arrives via Lake Formation (lakeformation.amazonaws.com). The
+# aws:CalledVia condition on the data-read statement below names both.
 
 data "aws_iam_policy_document" "table_bucket" {
   count = length(var.consumer_account_ids) > 0 ? 1 : 0
@@ -35,8 +41,12 @@ data "aws_iam_policy_document" "table_bucket" {
     }
   }
 
-  # GetTableData is required for federated reads but bypasses Lake Formation,
-  # so it is scoped to specific principals when consumer_principal_arns is set.
+  # GetTableData is required for federated reads. Unconditioned it would let a
+  # consumer read the underlying table directly, bypassing Lake Formation. The
+  # aws:CalledVia condition confines it to calls that arrive through Glue or
+  # Lake Formation, so direct s3tables data reads are denied. The principal
+  # scoping via consumer_principal_arns is a second control kept until AWS
+  # confirms the complete service-principal set for other query engines.
   # It is a CloudTrail data event: its denial does not appear in Event History.
   statement {
     sid     = "ConsumerDataRead"
@@ -51,6 +61,15 @@ data "aws_iam_policy_document" "table_bucket" {
     principals {
       type        = "AWS"
       identifiers = local.consumer_data_read_principals
+    }
+
+    condition {
+      test     = "ForAnyValue:StringEquals"
+      variable = "aws:CalledVia"
+      values = [
+        "glue.amazonaws.com",
+        "lakeformation.amazonaws.com",
+      ]
     }
   }
 }
